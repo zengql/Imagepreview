@@ -1,232 +1,3 @@
-/*
-Content-Type: multipart/related; boundary="_CLOUDGAMER"
-
---_CLOUDGAMER
-Content-Location:blankImage
-Content-Transfer-Encoding:base64
-
-R0lGODlhAQABAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAABAAEAAAICVAEAOw==
-*/
-
-
-var ImagePreview = function(file, img, options) {
-	
-	this.file = $$(file);//文件对象
-	this.img = $$(img);//预览图片对象
-	
-	this._preload = null;//预载图片对象
-	this._data = "";//图像数据
-	this._upload = null;//remote模式使用的上传文件对象
-	
-	var opt = this._setOptions(options);
-	
-	this.action = opt.action;
-	this.timeout = opt.timeout;
-	this.ratio = opt.ratio;
-	this.maxWidth = opt.maxWidth;
-	this.maxHeight = opt.maxHeight;
-	
-	this.onCheck = opt.onCheck;
-	this.onShow = opt.onShow;
-	this.onErr = opt.onErr;
-	
-	//设置数据获取程序
-	this._getData = this._getDataFun(opt.mode);
-	//设置预览显示程序
-	this._show = opt.mode !== "filter" ? this._simpleShow : this._filterShow;
-};
-//根据浏览器获取模式
-var brow = browCheck();
-ImagePreview.MODE = (brow == "msie" || brow == "trident") ? "filter" : ($$B.firefox ? "domfile" : ($$B.opera || $$B.chrome || $$B.safari ? "remote" : "simple"));
-//透明图片
-ImagePreview.TRANSPARENT = $$B.ie7 || $$B.ie6 ?
-	"mhtml:" + document.scripts[document.scripts.length - 1].getAttribute("src", 4) + "!blankImage" :
-	"data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-	//alert(document.scripts[document.scripts.length - 1].getAttribute("src", 4) + "!blankImage");
-
-ImagePreview.prototype = {
-  //设置默认属性
-  _setOptions: function(options) {
-    this.options = {//默认值
-		mode:		ImagePreview.MODE,//预览模式
-		ratio:		0,//自定义比例
-		maxWidth:	0,//缩略图宽度
-		maxHeight:	0,//缩略图高度
-		onCheck:	function(){},//预览检测时执行
-		onShow:		function(){},//预览图片时执行
-		onErr:		function(){},//预览错误时执行
-		//以下在remote模式时有效
-		action:		undefined,//设置action
-		timeout:	0//设置超时(0为不设置)
-    };
-    return $$.extend(this.options, options || {});
-  },
-  //开始预览
-  preview: function() {
-	if ( this.file && false !== this.onCheck() ) {
-		this._preview( this._getData() );
-	}
-  },
-  
-  //根据mode返回数据获取程序
-  _getDataFun: function(mode) {
-	switch (mode) {
-		case "filter" :
-			return this._filterData;
-		case "domfile" :
-			return this._domfileData;
-		case "remote" :
-			return this._remoteData;
-		case "simple" :
-		default :
-			return this._simpleData;
-	}
-  },
-  //滤镜数据获取程序
-  _filterData: function() {
-	this.file.select();
-	try{
-		return document.selection.createRange().text;
-	} finally { document.selection.empty(); }
-  },
-  //domfile数据获取程序
-  _domfileData: function() {
-	  var  imgSrc = window.URL.createObjectURL(this.file.files[0]);
-	  return imgSrc;
-  },
-  //远程数据获取程序
-  _remoteData: function() {
-	this._setUpload();
-	this._upload && this._upload.upload();
-  },
-  //一般数据获取程序
-  _simpleData: function() {
-	return this.file.value;
-  },
-  
-  //设置remote模式的上传文件对象
-  _setUpload: function() {
-	if ( !this._upload && this.action !== undefined && typeof QuickUpload === "function" ) {
-		var oThis = this;
-		this._upload = new QuickUpload(this.file, {
-			onReady: function(){
-				this.action = oThis.action; this.timeout = oThis.timeout;
-				var parameter = this.parameter;
-				parameter.ratio = oThis.ratio;
-				parameter.width = oThis.maxWidth;
-				parameter.height = oThis.maxHeight;
-			},
-			onFinish: function(iframe){
-				try{
-					oThis._preview( iframe.contentWindow.document.body.innerHTML );
-				}catch(e){ oThis._error("remote error"); }
-			},
-			onTimeout: function(){ oThis._error("timeout error"); }
-		});
-	}
-  },
-  
-  //预览程序
-  _preview: function(data) {
-	//空值或相同的值不执行显示
-	if ( !!data && data !== this._data ) {
-		this._data = data; this._show();
-	}
-  },
-  
-  //设置一般预载图片对象
-  _simplePreload: function() {
-	if ( !this._preload ) {
-		var preload = this._preload = new Image(), oThis = this,
-			onload = function(){ oThis._imgShow( oThis._data, this.width, this.height ); };
-		this._onload = function(){ this.onload = null; onload.call(this); }
-		preload.onload = $$B.ie ? this._onload : onload;
-		preload.onerror = function(){ oThis._error(); };
-	} else if ( $$B.ie ) {
-		this._preload.onload = this._onload;
-	}
-  },
-  //一般显示
-  _simpleShow: function() {
-	this._simplePreload();
-	this._preload.src = this._data;
-  },
-  
-  //设置滤镜预载图片对象
-  _filterPreload: function() {
-	if ( !this._preload ) {
-		var preload = this._preload = document.createElement("div");
-		//隐藏并设置滤镜
-		$$D.setStyle( preload, {
-			width: "1px", height: "1px",
-			visibility: "hidden", position: "absolute", left: "-9999px", top: "-9999px",
-			filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='image')"
-		});
-		//插入body
-		var body = document.body; body.insertBefore( preload, body.childNodes[0] );
-	}
-  },
-  //滤镜显示
-  _filterShow: function() {
-	this._filterPreload();
-	var preload = this._preload,
-		data = this._data.replace(/[)'"%]/g, function(s){ return escape(escape(s)); });
-	try{
-		preload.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = data;
-	}catch(e){ this._error("filter error"); return; }
-	//设置滤镜并显示
-	this.img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale',src=\"" + data + "\")";
-	this._imgShow( ImagePreview.TRANSPARENT, preload.offsetWidth, preload.offsetHeight );
-  },
-  
-  //显示预览
-  _imgShow: function(src, width, height) {
-	var img = this.img, style = img.style,
-		ratio = Math.max( 0, this.ratio ) || Math.min( 1,
-				Math.max( 0, this.maxWidth ) / width  || 1,
-				Math.max( 0, this.maxHeight ) / height || 1
-			);
-	//设置预览尺寸
-	style.width = Math.round( width * ratio ) + "px";
-	style.height = Math.round( height * ratio ) + "px";
-	//设置src
-	img.src = src;
-	this.onShow();
-  },
-  
-  //销毁程序
-  dispose: function() {
-	//销毁上传文件对象
-	if ( this._upload ) {
-		this._upload.dispose(); this._upload = null;
-	}
-	//销毁预载图片对象
-	if ( this._preload ) {
-		var preload = this._preload, parent = preload.parentNode;
-		this._preload = preload.onload = preload.onerror = null;
-		parent && parent.removeChild(preload);
-	}
-	//销毁相关对象
-	this.file = this.img = null;
-  },
-  //出错
-  _error: function(err) {
-	this.onErr(err);
-  }
-}
-
-function browCheck(){
-	var u = window.navigator.userAgent.toLocaleLowerCase(),
-        msie = /(msie) ([\d.]+)/,
-        chrome = /(chrome)\/([\d.]+)/,
-        firefox = /(firefox)\/([\d.]+)/,
-        safari = /(safari)\/([\d.]+)/,
-        opera = /(opera)\/([\d.]+)/,
-        ie11 = /(trident)\/([\d.]+)/,
-        b = u.match(msie)||u.match(chrome)||u.match(firefox)||u.match(safari)||u.match(opera)||u.match(ie11);
-        return b[1];
-}
-
 /**
  * 图片预览类（基于jquery）
  * 使用方法：
@@ -234,19 +5,17 @@ function browCheck(){
  *   imgShow.imgView("image1", file的DOM对象)
  *   //Callback为回调函数
  * @param opts {Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("23");} }, obj);}
- * @param file  <input type="file" />dom对象
+ * 
  */
-function ImagePreViewNew(opts){
-  
+function ImagePreview(){
     //设置全局属性
-    opts = jQuery.extend({
-        Width: 120,
-        Height: 120,
-        ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],
-        Callback: function () { },
-        CallbackA: function () { },
-        CallbackB: function () { }
-    }, opts || {});
+    var opts = {
+      Width : 120,
+      Height : 120,
+      ImgType :  ["gif", "jpeg", "jpg", "bmp", "png"],
+      Callback : function(){}
+    }
+    
     //查询URL
     this.getObjectURL = function (file) {
         var url = null;
@@ -259,9 +28,19 @@ function ImagePreViewNew(opts){
         }
         return url;
     }
-    //显示主方法
-    this.imgView = function(obj, imgContiner, opts) {
+    /*显示主方法
+    * 注意调用顺序，第一个是file DOM对象，第二个是包含预览图片的容器（上一层DOM元素）,第三个是此次预览图片的参数，格式才考全局参数格式
+    */
+    this.imgView = function(obj, imgContiner, optsNew) {
+
         var _self = obj, _this = $(obj);
+
+      //设置局部属性，重复的会替换掉全局的
+        if(opts){
+          opts = jQuery.extend(opts, optsNew || {});
+        }
+        
+      
           //检查参数，如果当前Img元素不存在，重新创建一个
         var imageElement = jQuery("#j_img_"+_this.attr("id"));
         if(imageElement.length <= 0 ){
@@ -273,21 +52,14 @@ function ImagePreViewNew(opts){
                 }
             //当image容器存在的时候，存到容器，不存在的时候，放到当前OBJ的上面
             if(imgContiner){
-                imgContiner.append(imageElement)
+                $(imgContiner).append(imageElement)
             } else {
                 //obj.insertAdjacentHTML("beforeBegin",imageElement.get(0));
                 _this.before(imageElement.get(0));
             }
         }
-        
         if (obj.value) {
-        	//设置局部属性，重复的会替换掉全局的
-            opts = jQuery.extend({
-                Width: 120,
-                Height: 120,
-                ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],
-                Callback: function () { }
-            }, opts || {});
+        	
             if (!RegExp("\.(" + opts.ImgType.join("|") + ")$", "i").test(_self.value.toLowerCase())) {
                 alert("选择文件错误,图片类型必须是" + opts.ImgType.join("，") + "中的一种");
                 _self.value = "";
