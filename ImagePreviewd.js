@@ -7,13 +7,16 @@
  * @param opts {Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("23");} }, obj);}
  * 
  */
-function ImagePreview(){
+function ImagePreview(globalOpts){
     //设置全局属性
     var opts = {
       Width : 120,
       Height : 120,
       ImgType :  ["gif", "jpeg", "jpg", "bmp", "png"],
       Callback : function(){}
+    }
+    if(globalOpts){
+        opts = jQuery.extend(opts, globalOpts || {}});
     }
     
     //查询URL
