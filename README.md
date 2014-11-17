@@ -30,6 +30,6 @@ Imagepreview
     2：onchange事件
     onchange="javascript:imgPr.imgView(this, $('#ImgPr'), imagePreviewParam);"
 
- 现在想到的只有这两种方法了，有更多的可以来信告知 zengzqlliang@sina.com
+ 现在想到的只有这两种方法了，如果您有更多需求可以来信告知 zengzqlliang@sina.com
 
 
