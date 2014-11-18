@@ -17,7 +17,7 @@ Imagepreview
 	imgPr.imgView();
 	此函数接受三个三处
 	arg1: file表单的DOM对象，采用jquery获取的，请自行转换
-	arg2: 图片显示的位置，不需要的请输入空，false,"",undefined,函数是根据参数的位置来绝对功能，不能缺省
+	arg2: 图片显示的位置，不需要的请输入空，false,"",undefined，默认放到当前file元素的上。函数是根据参数的位置来定位功能，不能缺省
 	arg3: 单个file表单规则, 格式请参照上面的全局参数， 注意大小写
 
 具体使用

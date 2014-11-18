@@ -2,9 +2,9 @@
  * 图片预览类（基于jquery）
  * 使用方法：
  *   var imgShow = new ImagePreViewNew({Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("23");} }, obj);}, 
- *   imgShow.imgView("image1", file的DOM对象)
+ *   imgShow.imgView("image1",null, file的DOM对象)
  *   //Callback为回调函数
- * @param opts {Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("23");} }, obj);}
+ * @param globalOpts ={Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("23");} }
  * 
  */
 function ImagePreview(globalOpts){
@@ -16,7 +16,7 @@ function ImagePreview(globalOpts){
       Callback : function(){}
     }
     if(globalOpts){
-        opts = jQuery.extend(opts, globalOpts || {}});
+        opts = jQuery.extend(opts, globalOpts || {});
     }
     
     //查询URL
@@ -32,7 +32,7 @@ function ImagePreview(globalOpts){
         return url;
     }
     /*显示主方法
-    * 注意调用顺序，第一个是file DOM对象，第二个是包含预览图片的容器（上一层DOM元素）,第三个是此次预览图片的参数，格式才考全局参数格式
+    * 注意调用顺序，第一个是file DOM对象，第二个是包含预览图片的容器（上一层DOM元素）,第三个是此次预览图片的参数，格式参考全局参数
     */
     this.imgView = function(obj, imgContiner, optsNew) {
 
