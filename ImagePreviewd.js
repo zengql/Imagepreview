@@ -55,7 +55,7 @@ function ImagePreview(globalOpts){
                 }
             //当image容器存在的时候，存到容器，不存在的时候，放到当前OBJ的上面
             if(imgContiner){
-                $(imgContiner).append(imageElement)
+               imgContiner.appendChild(imageElement.get(0));
             } else {
                 //obj.insertAdjacentHTML("beforeBegin",imageElement.get(0));
                 _this.before(imageElement.get(0));

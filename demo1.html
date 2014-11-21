@@ -24,7 +24,10 @@ $(function () {
 
 });
 
- function imageGlobalCallBackFun (){
+/**
+* 次方法接受两个参数，一个是当前的file DOM对象，一个是显示的图片元素
+*/
+ function imageGlobalCallBackFun (file, imgEle){
         alert("my callback function");
     }
         
@@ -37,10 +40,10 @@ $(function () {
         <div id="main">
             <div id="show1"> </div>
 
-                 <input type="file" onchange="javascript:imgPr.imgView(this, $('#ImgPr'), imagePreviewParam);" />
+                 <input type="file" onchange="javascript:imgPr.imgView(this, $('#ImgPr')[0], imagePreviewParam);" />
             <div class="card" id="up_img">
                
-                 <img id="ImgPr" width="120" height="120" style="display: inherit;" /></div>
+                 <div id="ImgPr" width="120" height="120" style="display: inherit;" /></div>
                  <input type="file" id="up" />
             </div>
         </div>
