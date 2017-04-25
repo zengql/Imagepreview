@@ -1,17 +1,17 @@
-Imagepreview
-============
+Imagepreview<br/>
+============<br/>
+<br/>
+图片预览，兼容各浏览器<br/>
 
-图片预览，兼容各浏览器
-
-注意：
+注意：<br/>
 	1.对谷歌或火狐浏览器是创建了一个img标签，为了保证唯一，需要一个ID属性，所以，File表单必须有一个唯一的ID属性，创建
-	img标签的时候会用到
-	2.显示图片函数，请注意参数顺序
+	img标签的时候会用到<br/>
+	2.显示图片函数，请注意参数顺序<br/>
 
-首先需要创建预览对象
-	var imgPr = new ImagePreview()
-	此函数接受一个对象参数，设置全局的属性
-	{Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("我是回调函数");}]
+首先需要创建预览对象<br/>
+	var imgPr = new ImagePreview()<br/>
+	此函数接受一个对象参数，设置全局的属性<br/>
+	{Width: 120, Height: 120,ImgType: ["gif", "jpeg", "jpg", "bmp", "png"],Callback:function(){ alert("我是回调函数");}]<br/>
 
 然后就是调用对象的显示函数
 	imgPr.imgView();
